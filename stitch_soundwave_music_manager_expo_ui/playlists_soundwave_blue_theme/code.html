@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SoundWave - Playlists</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "tertiary": "#d4ca38",
+                "on-secondary": "#003914",
+                "secondary": "#53e076",
+                "surface-dim": "#151219",
+                "background": "#151219",
+                "surface": "#0d1117",
+                "on-tertiary-fixed-variant": "#4d4800",
+                "error": "#ffb4ab",
+                "surface-bright": "#3c383f",
+                "surface-container": "#161b22",
+                "on-secondary-container": "#003713",
+                "on-tertiary-fixed": "#1e1c00",
+                "inverse-primary": "#005bc1",
+                "on-error-container": "#ffdad6",
+                "surface-variant": "#37333b",
+                "secondary-fixed-dim": "#53e076",
+                "surface-container-high": "#2c2830",
+                "on-primary-fixed": "#001a41",
+                "on-tertiary-container": "#454100",
+                "surface-tint": "#adc6ff",
+                "deep-navy-bg": "#010409",
+                "surface-container-low": "#1e1a21",
+                "tertiary-fixed": "#f1e753",
+                "tertiary-fixed-dim": "#d4ca38",
+                "secondary-container": "#00ad4b",
+                "primary-fixed": "#d8e2ff",
+                "on-secondary-fixed": "#002109",
+                "on-background": "#e8e0ea",
+                "on-tertiary": "#353100",
+                "on-error": "#690005",
+                "outline": "#8b90a0",
+                "inverse-on-surface": "#332f36",
+                "on-surface": "#e8e0ea",
+                "secondary-fixed": "#72fe90",
+                "on-surface-variant": "#c1c6d7",
+                "error-container": "#93000a",
+                "surface-container-lowest": "#100d13",
+                "primary-container": "#4b8eff",
+                "on-primary-fixed-variant": "#004493",
+                "primary": "#adc6ff",
+                "inverse-surface": "#e8e0ea",
+                "on-primary": "#ffffff",
+                "on-secondary-fixed-variant": "#005320",
+                "on-primary-container": "#00285c",
+                "tertiary-container": "#b8ae19",
+                "surface-container-highest": "#37333b",
+                "primary-fixed-dim": "#adc6ff",
+                "outline-variant": "#414755"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "xl": "32px",
+                "lg": "24px",
+                "sm": "8px",
+                "gutter": "12px",
+                "md": "16px",
+                "base": "4px",
+                "xs": "4px",
+                "margin-mobile": "16px"
+        },
+        "fontFamily": {
+                "display-lg": [
+                        "Inter"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Inter"
+                ],
+                "label-sm": [
+                        "Inter"
+                ],
+                "headline-lg-mobile": [
+                        "Inter"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "headline-sm": [
+                        "Inter"
+                ],
+                "label-caps": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "display-lg": [
+                        "36px",
+                        {
+                                "lineHeight": "44px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "800"
+                        }
+                ],
+                "body-md": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "28px",
+                        {
+                                "lineHeight": "34px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "800"
+                        }
+                ],
+                "body-lg": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-sm": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-caps": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "600"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            padding-bottom: 140px; /* Space for mini-player and bottom nav */
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .grid-mosaic {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 2px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface/80 backdrop-blur-xl border-b-0 shadow-none">
+<div class="flex justify-between items-center px-margin-mobile h-16 bg-surface dark:bg-surface">
+<div class="flex items-center gap-sm">
+<img alt="User Profile Avatar" class="w-8 h-8 rounded-full object-cover" data-alt="A small, high-quality circular avatar image of a young adult user in a modern music streaming app. Dark mode aesthetic, moody lighting, premium feel. Vibrant neon purple and deep black accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbH8brBF629ObUjUktPP2vwqFpvNLs1ftUZgIncJLnSKiMXhtmiB4iCjmNNFdI95kzXoR4HivSzsbQnuWDHmVP-KluGnMbPIEVhwzBAigZgiHv8iH0Wk6zoUL9Yuhmh_ggqtd7kvrIBg25Si5UhiaksYhEGk2N6p_SGQMIKhmriAnRKmr2VcBwzaZprF8zo7yR3GIg2NcVB_p5WTgnzNMzzCqE5M3-Kza20FEHpnmzmumaAjYG2IAN"/>
+</div>
+<h1 class="font-display-lg text-display-lg font-extrabold text-primary tracking-tight">SoundWave</h1>
+<button class="w-10 h-10 flex items-center justify-center hover:bg-surface-variant/20 rounded-full active:scale-95 duration-200 transition-colors">
+<span class="material-symbols-outlined text-primary">search</span>
+</button>
+</div>
+</header>
+<main class="pt-20 px-margin-mobile max-w-4xl mx-auto min-h-screen">
+<div class="flex items-center justify-between mb-lg mt-md">
+<h2 class="font-headline-md text-headline-md text-on-background">Tus Playlists</h2>
+</div>
+<!-- Create Playlist Button -->
+<button class="w-full bg-primary-container text-on-primary-container font-body-lg text-body-lg font-semibold py-md rounded-xl flex items-center justify-center gap-sm mb-xl hover:opacity-90 active:scale-95 transition-all shadow-[0_4px_16px_rgba(75,142,255,0.2)]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+            Crear nueva Playlist
+        </button>
+<!-- Playlists Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg mb-xl">
+<!-- Playlist Card 1 -->
+<div class="bg-surface-container-low rounded-xl p-sm flex items-center gap-md hover:bg-surface-container transition-colors group cursor-pointer relative overflow-hidden">
+<!-- Mosaic Cover -->
+<div class="w-20 h-20 rounded-lg overflow-hidden shrink-0 grid-mosaic bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="Abstract album art cover featuring moody dark synthwave aesthetics. Neon purple grids, deep black space, glowing magenta geometric shapes. High contrast, sleek modern digital art." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzKTarSgduU4MkFkv2KVAGDS-xLQ4h3BX-Z1IRnHGucbauAD8vh65Sjqq8vIoB6HYGhc1a5yp-FzrZv1WqPGW2oSq_kloR8qroA4PnP8wHQnsXKfrfKcDU5hoxzkq3bNG76jn1swpkeCZ1mTUmePVS22bgw2YfIteq5hYNyKoSYK9TFJIrr5YS7p8MzweUx4Su8orALXzf48Ti-83Nk8dnEtHNJgbTViSOCbuOBY5vcOyskBLEdTrm"/>
+<img class="w-full h-full object-cover" data-alt="Abstract album art cover with energetic electronic music vibes. Bright green secondary color splashes on dark charcoal background. Glitch art aesthetic, modern and dynamic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApRLoB8E276cdOhlCPCncUIiSRPtgYvDvTG53iv7kPy-OU6vBOR5JN9LYo0tpmWWtaTJHkC7YIHwPjCqryuNr66Y6dzro6M9G4xzZNTHIgWBvDh6ns-1o9M9OqlftYjo6ceOsiWPb4p1R6rUHwj-7Lx6fRlIEFEyydosaIF3vme3uFzep3E-vnhcY_4cpJoaMVGz1fMOVBypJpBOa1xQMED2UsE006ObU6NOZtAo_IHz29C6mK-yQz"/>
+<img class="w-full h-full object-cover" data-alt="Minimalist abstract album cover art. Deep purple hues blending into pitch black. Subtle texture, elegant typography layout space. Premium lo-fi hip hop mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_maI2ntbOLiHy61OBzlI5ocFKSsDk9mpIQZFrDNna6DhqSsebUe54CTxODUvbdEfHDs5rDJJzOSLz_2ewpszTx9qB6-068XCmakLFhA1qfzECJ2m3N-LSqIZkaNlGz1leJbLR7msr5OEwUZlf9m672iB0HLnLwZTTHUf4X9Uuidgx-ukPZyFXK9ZZNg__0S0mYpIjg-pFGMg4nnCVirVrqfX-zGrjF2BulktKEZjv7Cw9T6B8M7bM"/>
+<img class="w-full h-full object-cover" data-alt="Vibrant abstract album art. High energy pop music aesthetic. Neon pink and electric blue gradients against a dark void. Sleek, polished modern 3D render style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSUJ2UyVVcx8GDQHLeSzdMRHMXOlf6X8KrT6Dq5CMe4FaEneWWDNr9B1lflfttbthCfiOhrBkwz0wI3SUNaHuD6H2wtpHchQiuk3hihoK00zlbBDtK5Id1ARhpYP_NuPVyejbhbug7U9OjlfUdx1SSxD8UWPJzsEarB34i20lfNH7kn3_WEJP5bjeYw1AynZC638hJarm7Unpm52jlH1f9YABOaNyVhq1YqQNsaxt9hg7Wpo1ylCOx"/>
+</div>
+<div class="flex-1 min-w-0 py-xs">
+<h3 class="font-body-lg text-body-lg text-on-background truncate mb-xs">Night Drive Essentials</h3>
+<p class="font-body-md text-body-md text-on-surface-variant truncate">Creada por ti • 42 tracks</p>
+</div>
+<div class="flex items-center gap-xs opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity pr-sm">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-error-container/20 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Playlist Card 2 -->
+<div class="bg-surface-container-low rounded-xl p-sm flex items-center gap-md hover:bg-surface-container transition-colors group cursor-pointer relative overflow-hidden">
+<!-- Mosaic Cover -->
+<div class="w-20 h-20 rounded-lg overflow-hidden shrink-0 grid-mosaic bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="Calm acoustic album art cover. Warm amber tones, dark wooden textures, subtle film grain. Cozy indie folk aesthetic, moody and intimate lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2OCdIgiyGkX3gualOBLcwoUUggsctEWRwg-uQoA6NBzT_AGiYCoTqWmSileb8xrPHhvzMvLZFpFeYXhoDBOwY2RUy0nvDqL9MgYs5ZYu-p87MfCt9Tc2z2Lw69ExLJN3V8TiOFlFwYXJR1lWrWXxvxcx_45V9S8VX5LaB5WY12FWlI81283iuW53PTl5U_hkTEDpac1xKmAy7cdyhCpAFJlRST7vxj5lRPyR5nNc5CXlrRcr0HHYE"/>
+<img class="w-full h-full object-cover" data-alt="Vintage jazz album art cover. Sepia toned photography style, smoky atmosphere, silhouetted instruments against dark background. Classic, timeless design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5O5l-T0idm88QCfFJiW4CxlQGZemT5CmSyO0lPXc5uaHMbQz0-Lem6jZUQgCojZb_LRlNSf1E7sdL1uUiaMdnjSQhJQRsFXck9eHcK5i0QZPMH2t4ZYtpMu_ZEfUbdqvsr5jXNCbAwLlmoXkM7BRCp-TkVcUJJY4mbb99p7RZgsNR4O6fOpX84p98F9pRybTjxuo_NbSg0rJmMiOxa1k4MceoFKTOs6bu9H7JM9Hzq7bCKf1u7YVJ"/>
+<img class="w-full h-full object-cover" data-alt="Lo-fi beats album cover art. Pastel colors on dark canvas, anime-inspired urban scenery at night. Rain drops on window aesthetic, relaxed vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBi7-U-E-JPnskIM9rf7rZHImfm7hr3VSPCbW6oRIaucRkw-ogGZL5mSzUuBu21wP6IbHc8ShvAGTeaLnbYBfIVgG223UTF4fRRuzaN1Bm9mpAXel8-WbLES1r8CJJxetugi13hExM3QJBnbAYITILuSBbYYA2aMVptoG_ABCzADcvzlBsI_dwZmBgEoPTepLV3EkHgnzFKRDrwLjxcg7csiauTRYYQ0NcO-nTkn2rqW4OB1TYAd3kK"/>
+<img class="w-full h-full object-cover" data-alt="Ambient music album art. Soft glowing orbs in deep ocean blue space. Serene, meditative, abstract minimal design. High quality digital render." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBmHNHo9ilR5doumsZxkIUN8OAtUtgIvNNZnHLZvhJEF4_aUSHcnFVQSJBzJTevtjyHCqj_WPBTzrg4_DpxLKInzGg5vk125y3Bo-pnZF0aeA4xs8g7ZG6czXj3XyPKCbDOotGTOZ9UL7QN0nFK4Gy5sJ0QuUojOT6294EO88UOczcBRBeUJTuuPHnzRTyiVikS0w7nRATuBzq3pNmdwDzmX50DFvYCXdObR8lhm21uROmtuQWDRn_"/>
+</div>
+<div class="flex-1 min-w-0 py-xs">
+<h3 class="font-body-lg text-body-lg text-on-background truncate mb-xs">Sunday Morning Chill</h3>
+<p class="font-body-md text-body-md text-on-surface-variant truncate">Creada por ti • 18 tracks</p>
+</div>
+<div class="flex items-center gap-xs opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity pr-sm">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-error-container/20 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Playlist Card 3 -->
+<div class="bg-surface-container-low rounded-xl p-sm flex items-center gap-md hover:bg-surface-container transition-colors group cursor-pointer relative overflow-hidden">
+<div class="w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant">music_note</span>
+</div>
+<div class="flex-1 min-w-0 py-xs">
+<h3 class="font-body-lg text-body-lg text-on-background truncate mb-xs">Workout Mix 2024</h3>
+<p class="font-body-md text-body-md text-on-surface-variant truncate">Creada por ti • 0 tracks</p>
+</div>
+<div class="flex items-center gap-xs opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity pr-sm">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-error-container/20 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Empty State Example (Hidden by default, shown for illustration) -->
+<div class="hidden flex-col items-center justify-center py-xl text-center">
+<div class="w-24 h-24 rounded-full bg-surface-variant/30 flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-5xl text-on-surface-variant">queue_music</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-background mb-xs">No tienes playlists aún</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs mx-auto">¡Crea la primera para empezar a organizar tu música favorita!</p>
+</div>
+</main>
+<!-- Mini Player (Floating above Bottom Nav) -->
+<div class="fixed bottom-16 w-full z-40 px-xs md:px-margin-mobile pb-xs">
+<div class="bg-[#2A2A2A] rounded-lg p-sm flex items-center justify-between shadow-[0_8px_24px_rgba(0,0,0,0.6)] border border-white/5 mx-auto max-w-4xl">
+<div class="flex items-center gap-sm flex-1 min-w-0">
+<img class="w-10 h-10 rounded shadow-sm object-cover" data-alt="Album cover for a dark synthwave track. Neon grid lines, retro futuristic sunset in vivid magenta and purple hues against pitch black background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbJvP5zEpNSmmycu9S0Iu1PFjn9ChrVAeeEjI6y_ZVWlrRjLholpzexp6p4c5qSus3lmN0-JgxSkTwWCEpzsc3powmUWMYOafDIvdTnzq41lmzUhkONU_yU55-eqxHIginRC5hHSZDzBc6w73pOCQQlvwCX_D9YTQJVB9dj3XjASLiBCGJGP0PkkqK7gZJAgYNgkJQioI7RoDaN9eDNrXgwAl5K_LmNSA1D2Blz5ID8N1luON1EETY"/>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md font-semibold text-white truncate">Midnight City</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Synth Riders</p>
+</div>
+</div>
+<div class="flex items-center gap-sm shrink-0">
+<button class="text-on-surface-variant hover:text-white transition-colors p-unit hidden sm:block">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+<button class="text-white hover:text-primary transition-colors p-unit">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+<!-- Progress Bar -->
+<div class="absolute bottom-0 left-2 right-2 h-[2px] bg-[#3E3E3E] rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-1/3 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/80 dark:bg-surface/80 backdrop-blur-xl md:hidden border-t-0 shadow-none">
+<div class="flex justify-around items-center h-16 w-full bg-surface dark:bg-surface">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/20 active:scale-90 transition-transform w-full h-full">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/20 active:scale-90 transition-transform w-full h-full">
+<span class="material-symbols-outlined mb-1">music_note</span>
+<span class="font-label-sm text-label-sm">Music</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/20 active:scale-90 transition-transform w-full h-full">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-sm text-label-sm">Artists</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary font-bold hover:bg-surface-variant/20 active:scale-90 transition-transform w-full h-full">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">library_music</span>
+<span class="font-label-sm text-label-sm">Library</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/20 active:scale-90 transition-transform w-full h-full">
+<span class="material-symbols-outlined mb-1">account_circle</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</button>
+</div>
+</nav>
+</body></html>

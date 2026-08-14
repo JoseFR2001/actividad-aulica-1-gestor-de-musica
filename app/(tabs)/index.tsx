@@ -1,98 +1,386 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  FlatList,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { Header } from '../../src/components/common/Header';
+import { LoadingState } from '../../src/components/common/LoadingState';
+import { EmptyState } from '../../src/components/common/EmptyState';
+import { musicService } from '../../src/services/musicService';
+import { Song, Playlist, UserProfile } from '../../src/types/music';
+import { usePlayer } from '../../src/context/PlayerContext';
+import {
+  COLORS,
+  FONT_SIZES,
+  SPACING,
+  BORDER_RADIUS,
+  SHADOWS,
+} from '../../src/constants/theme';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const router = useRouter();
+  const { playSong, currentSong, isPlaying } = usePlayer();
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [recentSongs, setRecentSongs] = useState<Song[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+
+  const loadDashboardData = async () => {
+    try {
+      const [userData, recents, playlistsData] = await Promise.all([
+        musicService.getUserProfile(),
+        musicService.getRecentSongs(),
+        musicService.getPlaylists(),
+      ]);
+      setUser(userData);
+      setRecentSongs(recents);
+      setPlaylists(playlistsData);
+    } catch (error) {
+      console.error('Error cargando datos del dashboard:', error);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    loadDashboardData();
+  };
+
+  const getGreeting = () => {
+    const hours = new Date().getHours();
+    if (hours < 12) return 'Buenos días';
+    if (hours < 20) return 'Buenas tardes';
+    return 'Buenas noches';
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <Header title="SoundWave" />
+        <LoadingState message="Cargando tu música personalizada..." />
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <Header
+        title="SoundWave"
+        subtitle={`${getGreeting()}, ${user?.name || 'Oyente'}`}
+        avatarUrl={user?.avatar}
+        rightActionIcon="search-outline"
+        onRightAction={() => router.push('/(tabs)/songs' as any)}
+      />
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={COLORS.primary}
+            colors={[COLORS.primary]}
+          />
+        }
+      >
+        {/* Banner de Bienvenida / Quick Play */}
+        <View style={styles.heroCard}>
+          <View style={styles.heroTextContainer}>
+            <Text style={styles.heroTag}>DESTACADO DE HOY</Text>
+            <Text style={styles.heroTitle}>Sintetizadores & Neón</Text>
+            <Text style={styles.heroSubtitle}>
+              Sumérgete en lo mejor del Synthwave y Retro electro.
+            </Text>
+            <TouchableOpacity
+              style={styles.heroButton}
+              activeOpacity={0.8}
+              onPress={() => {
+                if (recentSongs.length > 0) playSong(recentSongs[0]);
+              }}
+            >
+              <Ionicons name="play" size={18} color={COLORS.text} />
+              <Text style={styles.heroButtonText}>Reproducir Mix</Text>
+            </TouchableOpacity>
+          </View>
+          <Image
+            source={{
+              uri: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80',
+            }}
+            style={styles.heroImage}
+          />
+        </View>
+
+        {/* Sección: Escuchado recientemente */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Escuchado recientemente</Text>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/songs' as any)}>
+            <Text style={styles.seeAllText}>Ver todo</Text>
+          </TouchableOpacity>
+        </View>
+
+        {recentSongs.length === 0 ? (
+          <EmptyState
+            title="Sin canciones recientes"
+            description="Explora el catálogo y reproduce tu primera canción."
+          />
+        ) : (
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={recentSongs}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.horizontalList}
+            renderItem={({ item }) => {
+              const isCurrentPlaying = currentSong?.id === item.id && isPlaying;
+              return (
+                <TouchableOpacity
+                  style={styles.recentCard}
+                  activeOpacity={0.8}
+                  onPress={() => playSong(item)}
+                >
+                  <View style={styles.coverWrapper}>
+                    <Image source={{ uri: item.cover }} style={styles.recentCover} />
+                    <View
+                      style={[
+                        styles.cardPlayBadge,
+                        isCurrentPlaying && styles.cardPlayingBadge,
+                      ]}
+                    >
+                      <Ionicons
+                        name={isCurrentPlaying ? 'pause' : 'play'}
+                        size={16}
+                        color={COLORS.text}
+                      />
+                    </View>
+                  </View>
+                  <Text style={styles.recentTitle} numberOfLines={1}>
+                    {item.title}
+                  </Text>
+                  <Text style={styles.recentArtist} numberOfLines={1}>
+                    {item.artist}
+                  </Text>
+                </TouchableOpacity>
+              );
+            }}
+          />
+        )}
+
+        {/* Sección: Tus Playlists */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Tus Playlists destacadas</Text>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/playlists' as any)}>
+            <Text style={styles.seeAllText}>Ver todas</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.playlistGrid}>
+          {playlists.slice(0, 4).map((pl) => (
+            <TouchableOpacity
+              key={pl.id}
+              style={styles.playlistCard}
+              activeOpacity={0.8}
+              onPress={() => router.push(`/playlist/${pl.id}` as any)}
+            >
+              <Image source={{ uri: pl.cover }} style={styles.playlistCover} />
+              <View style={styles.playlistInfo}>
+                <Text style={styles.playlistTitle} numberOfLines={1}>
+                  {pl.title}
+                </Text>
+                <Text style={styles.playlistTracks}>
+                  {pl.tracksCount} temas • {pl.genreTag || 'Música'}
+                </Text>
+              </View>
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={COLORS.textMuted}
+                style={styles.arrowIcon}
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Espaciador inferior para no tapar con el MiniPlayer */}
+        <View style={{ height: 90 }} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  scrollContent: {
+    paddingBottom: SPACING.xl,
+  },
+  heroCard: {
+    marginHorizontal: SPACING.md,
+    marginTop: SPACING.sm,
+    backgroundColor: COLORS.backgroundElevated,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.md,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    overflow: 'hidden',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  heroTextContainer: {
+    flex: 1,
+    paddingRight: SPACING.sm,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  heroTag: {
+    color: COLORS.primaryLight,
+    fontSize: FONT_SIZES.xs - 1,
+    fontWeight: '800',
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  heroTitle: {
+    color: COLORS.text,
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '800',
+  },
+  heroSubtitle: {
+    color: COLORS.textSecondary,
+    fontSize: FONT_SIZES.xs,
+    marginVertical: SPACING.xs,
+    lineHeight: 16,
+  },
+  heroButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs + 2,
+    borderRadius: BORDER_RADIUS.full,
+    alignSelf: 'flex-start',
+    marginTop: SPACING.xs,
+    gap: 6,
+  },
+  heroButtonText: {
+    color: COLORS.text,
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '700',
+  },
+  heroImage: {
+    width: 90,
+    height: 90,
+    borderRadius: BORDER_RADIUS.md,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.md,
+    marginTop: SPACING.lg,
+    marginBottom: SPACING.sm,
+  },
+  sectionTitle: {
+    color: COLORS.text,
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '700',
+  },
+  seeAllText: {
+    color: COLORS.primaryLight,
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+  },
+  horizontalList: {
+    paddingLeft: SPACING.md,
+    paddingRight: SPACING.sm,
+  },
+  recentCard: {
+    width: 135,
+    marginRight: SPACING.md,
+  },
+  coverWrapper: {
+    position: 'relative',
+  },
+  recentCover: {
+    width: 135,
+    height: 135,
+    borderRadius: BORDER_RADIUS.md,
+    backgroundColor: COLORS.surface,
+  },
+  cardPlayBadge: {
     position: 'absolute',
+    bottom: 8,
+    right: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardPlayingBadge: {
+    backgroundColor: COLORS.primary,
+  },
+  recentTitle: {
+    color: COLORS.text,
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    marginTop: SPACING.xs + 2,
+  },
+  recentArtist: {
+    color: COLORS.textSecondary,
+    fontSize: FONT_SIZES.xs,
+    marginTop: 2,
+  },
+  playlistGrid: {
+    paddingHorizontal: SPACING.md,
+    gap: SPACING.sm,
+  },
+  playlistCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.backgroundElevated,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  playlistCover: {
+    width: 50,
+    height: 50,
+    borderRadius: BORDER_RADIUS.sm,
+    backgroundColor: COLORS.surface,
+  },
+  playlistInfo: {
+    flex: 1,
+    marginLeft: SPACING.md,
+  },
+  playlistTitle: {
+    color: COLORS.text,
+    fontSize: FONT_SIZES.sm + 1,
+    fontWeight: '600',
+  },
+  playlistTracks: {
+    color: COLORS.textSecondary,
+    fontSize: FONT_SIZES.xs,
+    marginTop: 2,
+  },
+  arrowIcon: {
+    marginRight: SPACING.xs,
   },
 });
