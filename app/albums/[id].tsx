@@ -15,7 +15,7 @@ export default function AlbumDetailScreen() {
             <View style={styles.emptyState}>
                 <Text style={styles.emptyText}>No se encontró el álbum.</Text>
                 <Pressable onPress={() => router.back()} style={styles.backButton}>
-                    <Text style={styles.backText}>Volver</Text>
+                    <Text style={styles.backText}>Atrás</Text>
                 </Pressable>
             </View>
         );
@@ -40,7 +40,7 @@ export default function AlbumDetailScreen() {
                 )}
             </View>
             <Pressable onPress={() => router.back()} style={styles.backButton}>
-                <Text style={styles.backText}>Volver</Text>
+                <Text style={styles.backText}>Atrás</Text>
             </Pressable>
         </ScrollView>
     );

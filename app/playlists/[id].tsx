@@ -1,20 +1,20 @@
 import { mockCatalog } from '@/src/data/mockCatalog';
-import { getAlbumById, getSongsByArtist } from '@/src/domain/selectors';
+import { getPlaylistSongs } from '@/src/domain/selectors';
 import { theme } from '@/src/theme/tokens';
 import { formatDuration } from '@/src/utils/formatters';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-export default function ArtistDetailScreen() {
+export default function PlaylistDetailScreen() {
     const params = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
-    const artist = mockCatalog.artists.find((item) => item.id === params.id);
+    const playlist = mockCatalog.playlists.find((entry) => entry.id === params.id);
 
-    if (!artist) {
+    if (!playlist) {
         return (
             <View style={styles.emptyState}>
-                <Text style={styles.emptyText}>No se encontró el artista.</Text>
+                <Text style={styles.emptyText}>No se encontró la playlist.</Text>
                 <Pressable onPress={() => router.back()} style={styles.backButton}>
                     <Text style={styles.backText}>Atrás</Text>
                 </Pressable>
@@ -22,8 +22,7 @@ export default function ArtistDetailScreen() {
         );
     }
 
-    const albums = artist.albumsIds.map((id) => getAlbumById(mockCatalog, id)).filter(Boolean) as Array<{ id: string; titulo: string }>;
-    const songs = getSongsByArtist(mockCatalog, artist.id);
+    const songs = getPlaylistSongs(mockCatalog, playlist.id);
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -41,50 +40,38 @@ export default function ArtistDetailScreen() {
             </View>
 
             <View style={styles.heroCard}>
-                <Image source={{ uri: artist.imagen }} style={styles.artistImage} />
+                <View style={styles.cover}>
+                    <Text style={styles.coverText}>{songs.length}</Text>
+                </View>
                 <View style={styles.heroContent}>
-                    <Text style={styles.eyebrow}>{artist.generoPrincipal}</Text>
-                    <Text style={styles.artistName}>{artist.nombre}</Text>
-                    <Text style={styles.followers}>1.2M seguidores</Text>
+                    <Text style={styles.eyebrow}>{playlist.creadaPorUsuario ? 'Tu lista' : 'Curada'}</Text>
+                    <Text style={styles.title}>{playlist.titulo}</Text>
+                    <Text style={styles.description}>{playlist.descripcion}</Text>
+                    <Text style={styles.stats}>{songs.length} canciones · 15 min</Text>
                 </View>
             </View>
 
-            <View style={styles.actionBar}>
-                <Pressable style={styles.primaryAction}><Text style={styles.primaryText}>Seguir</Text></Pressable>
-                <Pressable style={styles.secondaryAction}><Ionicons name="shuffle" size={18} color={theme.colors.text} /></Pressable>
+            <View style={styles.actionRow}>
+                <Pressable style={styles.primaryAction}><Text style={styles.primaryText}>Reproducir</Text></Pressable>
+                <Pressable style={styles.secondaryAction}><Ionicons name="heart-outline" size={20} color={theme.colors.text} /></Pressable>
             </View>
 
             <View style={styles.panel}>
-                <Text style={styles.title}>Biografía</Text>
-                <Text style={styles.text}>{artist.biografia}</Text>
-            </View>
-
-            <View style={styles.panel}>
-                <Text style={styles.title}>Álbumes</Text>
-                {albums.length > 0 ? (
-                    albums.map((album) => (
-                        <View key={album.id} style={styles.albumRow}>
-                            <View style={styles.albumBadge}><Ionicons name="disc" size={16} color={theme.colors.primary} /></View>
-                            <Text style={styles.item}>{album.titulo}</Text>
+                <Text style={styles.panelTitle}>Canciones</Text>
+                {songs.length > 0 ? (
+                    songs.map((song, index) => (
+                        <View key={song.id} style={styles.trackRow}>
+                            <Text style={styles.trackIndex}>{index + 1}</Text>
+                            <View style={styles.trackInfo}>
+                                <Text style={styles.trackTitle}>{song.titulo}</Text>
+                                <Text style={styles.trackArtist}>{song.genero}</Text>
+                            </View>
+                            <Text style={styles.trackDuration}>{formatDuration(song.duracionSegundos)}</Text>
                         </View>
                     ))
                 ) : (
-                    <Text style={styles.empty}>Sin álbumes asociados.</Text>
+                    <Text style={styles.empty}>La playlist está vacía.</Text>
                 )}
-            </View>
-
-            <View style={styles.panel}>
-                <Text style={styles.title}>Top canciones</Text>
-                {songs.map((song) => (
-                    <View key={song.id} style={styles.songRow}>
-                        <Text style={styles.songNumber}>{song.id.replace('song-', '')}</Text>
-                        <View style={styles.songMeta}>
-                            <Text style={styles.songTitle}>{song.titulo}</Text>
-                            <Text style={styles.songGenre}>{song.genero}</Text>
-                        </View>
-                        <Text style={styles.songDuration}>{formatDuration(song.duracionSegundos)}</Text>
-                    </View>
-                ))}
             </View>
         </ScrollView>
     );
@@ -140,38 +127,40 @@ const styles = StyleSheet.create({
     heroCard: {
         marginHorizontal: theme.spacing.lg,
         marginTop: theme.spacing.md,
-        backgroundColor: '#153126',
-        borderRadius: 28,
+        backgroundColor: theme.colors.card,
+        borderRadius: 26,
         borderWidth: 1,
         borderColor: theme.colors.border,
-        overflow: 'hidden',
-    },
-    artistImage: {
-        width: '100%',
-        height: 220,
-    },
-    heroContent: {
         padding: theme.spacing.md,
+        flexDirection: 'row',
+        alignItems: 'center',
     },
+    cover: {
+        width: 92,
+        height: 92,
+        borderRadius: 24,
+        backgroundColor: '#2CE38A',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: theme.spacing.md,
+    },
+    coverText: {
+        color: '#07130E',
+        fontWeight: '900',
+        fontSize: 30,
+    },
+    heroContent: { flex: 1 },
     eyebrow: {
         color: theme.colors.primary,
-        textTransform: 'uppercase',
-        letterSpacing: 1,
         fontWeight: '800',
+        letterSpacing: 1,
+        textTransform: 'uppercase',
         fontSize: 11,
     },
-    artistName: {
-        color: theme.colors.text,
-        fontSize: 30,
-        fontWeight: '900',
-        marginTop: 6,
-    },
-    followers: {
-        color: theme.colors.muted,
-        marginTop: 4,
-        fontSize: 13,
-    },
-    actionBar: {
+    title: { color: theme.colors.text, fontSize: 26, fontWeight: '900', marginTop: 6 },
+    description: { color: theme.colors.muted, marginTop: 6, lineHeight: 20 },
+    stats: { color: theme.colors.muted, marginTop: 8, fontSize: 12 },
+    actionRow: {
         marginHorizontal: theme.spacing.lg,
         marginTop: theme.spacing.md,
         flexDirection: 'row',
@@ -190,9 +179,9 @@ const styles = StyleSheet.create({
         fontWeight: '900',
     },
     secondaryAction: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 46,
+        height: 46,
+        borderRadius: 23,
         backgroundColor: '#153126',
         borderWidth: 1,
         borderColor: theme.colors.border,
@@ -208,49 +197,19 @@ const styles = StyleSheet.create({
         padding: theme.spacing.md,
         marginTop: theme.spacing.md,
     },
-    title: { fontSize: 18, fontWeight: '700', color: theme.colors.text, marginBottom: 8 },
-    text: { color: theme.colors.muted, lineHeight: 22 },
-    albumRow: {
+    panelTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.text, marginBottom: 8 },
+    trackRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 8,
+        paddingVertical: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
     },
-    albumBadge: {
-        width: 26,
-        height: 26,
-        borderRadius: 13,
-        backgroundColor: '#122B22',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 10,
-    },
-    item: { color: theme.colors.text, paddingVertical: 6, fontSize: 15 },
-    songRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 8,
-    },
-    songNumber: {
-        width: 22,
-        color: theme.colors.muted,
-        fontWeight: '700',
-    },
-    songMeta: {
-        flex: 1,
-    },
-    songTitle: {
-        color: theme.colors.text,
-        fontWeight: '700',
-    },
-    songGenre: {
-        color: theme.colors.muted,
-        fontSize: 12,
-        marginTop: 2,
-    },
-    songDuration: {
-        color: theme.colors.muted,
-        fontWeight: '700',
-    },
+    trackIndex: { width: 20, color: theme.colors.muted, fontWeight: '700' },
+    trackInfo: { flex: 1 },
+    trackTitle: { color: theme.colors.text, fontWeight: '700' },
+    trackArtist: { color: theme.colors.muted, fontSize: 12, marginTop: 2 },
+    trackDuration: { color: theme.colors.muted, fontWeight: '700' },
     empty: { color: theme.colors.muted },
     backButton: { marginHorizontal: theme.spacing.lg, marginTop: theme.spacing.lg, backgroundColor: theme.colors.primary, borderRadius: theme.radius.md, paddingVertical: theme.spacing.md, alignItems: 'center' },
     backText: { color: '#FFFFFF', fontWeight: '700', fontSize: 16 },

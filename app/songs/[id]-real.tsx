@@ -1,5 +1,4 @@
-import { mockCatalog } from '@/src/data/mockCatalog';
-import { getAlbumById, getArtistById } from '@/src/domain/selectors';
+import { fetchTrendingTracks } from '@/src/data/musicApi';
 import { theme } from '@/src/theme/tokens';
 import { formatDuration } from '@/src/utils/formatters';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,19 +6,35 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-const coverById: Record<string, string> = {
-    'song-1': 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=80',
-    'song-2': 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=900&q=80',
-    'song-3': 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80',
-    'song-4': 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80',
-    'song-5': 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=900&q=80',
-};
-
 export default function SongDetailScreen() {
     const params = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
-    const song = mockCatalog.songs.find((entry) => entry.id === params.id);
+    const [song, setSong] = useState<{ id: string; title: string; artist: string; album: string; cover: string; duration: number; preview?: string } | null>(null);
     const [progress, setProgress] = useState(42);
+
+    useEffect(() => {
+        const loadSong = async () => {
+            try {
+                const tracks = await fetchTrendingTracks(50);
+                const foundTrack = tracks.find((t) => t.id === params.id);
+                if (foundTrack) {
+                    setSong({
+                        id: foundTrack.id,
+                        title: foundTrack.title,
+                        artist: foundTrack.artist,
+                        album: foundTrack.album,
+                        cover: foundTrack.cover,
+                        duration: foundTrack.duration,
+                        preview: foundTrack.preview,
+                    });
+                }
+            } catch (error) {
+                console.warn('Error loading song:', error);
+            }
+        };
+
+        loadSong();
+    }, [params.id]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -32,7 +47,7 @@ export default function SongDetailScreen() {
     if (!song) {
         return (
             <View style={styles.emptyState}>
-                <Text style={styles.emptyText}>No se encontró la canción.</Text>
+                <Text style={styles.emptyText}>Cargando canción...</Text>
                 <Pressable onPress={() => router.back()} style={styles.backButton}>
                     <Text style={styles.backText}>Atrás</Text>
                 </Pressable>
@@ -40,8 +55,6 @@ export default function SongDetailScreen() {
         );
     }
 
-    const artist = getArtistById(mockCatalog, song.artistaId);
-    const album = getAlbumById(mockCatalog, song.albumId);
     const bars = useMemo(() => Array.from({ length: 16 }, (_, index) => 18 + ((index * 17) % 40)), []);
 
     return (
@@ -51,7 +64,9 @@ export default function SongDetailScreen() {
                     <Ionicons name="arrow-back" size={22} color={theme.colors.text} />
                 </Pressable>
                 <View style={styles.brandBadge}>
-                    <View style={styles.brandMark}><Text style={styles.brandMarkText}>S</Text></View>
+                    <View style={styles.brandMark}>
+                        <Text style={styles.brandMarkText}>S</Text>
+                    </View>
                     <Text style={styles.brand}>Spolofy</Text>
                 </View>
                 <Pressable style={styles.iconButton}>
@@ -59,10 +74,10 @@ export default function SongDetailScreen() {
                 </Pressable>
             </View>
 
-            <Image source={{ uri: coverById[song.id] ?? 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=80' }} style={styles.cover} />
+            <Image source={{ uri: song.cover }} style={styles.cover} />
 
-            <Text style={styles.title}>{song.titulo}</Text>
-            <Text style={styles.artist}>{artist?.nombre ?? 'Artista desconocido'}</Text>
+            <Text style={styles.title}>{song.title}</Text>
+            <Text style={styles.artist}>{song.artist}</Text>
 
             <View style={styles.visualizer}>
                 {bars.map((height, index) => (
@@ -85,28 +100,45 @@ export default function SongDetailScreen() {
                 </View>
                 <View style={styles.timeRow}>
                     <Text style={styles.timeText}>1:12</Text>
-                    <Text style={styles.timeText}>{formatDuration(song.duracionSegundos)}</Text>
+                    <Text style={styles.timeText}>{formatDuration(song.duration)}</Text>
                 </View>
             </View>
 
             <View style={styles.controls}>
-                <Pressable style={styles.controlButton}><Ionicons name="shuffle" size={22} color={theme.colors.text} /></Pressable>
-                <Pressable style={styles.controlButton}><Ionicons name="play-back" size={24} color={theme.colors.text} /></Pressable>
-                <Pressable style={styles.playButton}><Ionicons name="pause" size={28} color="#07130E" /></Pressable>
-                <Pressable style={styles.controlButton}><Ionicons name="play-forward" size={24} color={theme.colors.text} /></Pressable>
-                <Pressable style={styles.controlButton}><Ionicons name="repeat" size={22} color={theme.colors.text} /></Pressable>
+                <Pressable style={styles.controlButton}>
+                    <Ionicons name="shuffle" size={22} color={theme.colors.text} />
+                </Pressable>
+                <Pressable style={styles.controlButton}>
+                    <Ionicons name="play-back" size={24} color={theme.colors.text} />
+                </Pressable>
+                <Pressable style={styles.playButton}>
+                    <Ionicons name="pause" size={28} color="#07130E" />
+                </Pressable>
+                <Pressable style={styles.controlButton}>
+                    <Ionicons name="play-forward" size={24} color={theme.colors.text} />
+                </Pressable>
+                <Pressable style={styles.controlButton}>
+                    <Ionicons name="repeat" size={22} color={theme.colors.text} />
+                </Pressable>
             </View>
 
             <View style={styles.panel}>
                 <Text style={styles.panelTitle}>Álbum</Text>
-                <Text style={styles.panelText}>{album?.titulo ?? 'Sin álbum'}</Text>
-                <Text style={styles.panelText}>{song.genero}</Text>
+                <Text style={styles.panelText}>{song.album}</Text>
+                <Text style={styles.panelSubtext}>Artista: {song.artist}</Text>
             </View>
 
             <View style={styles.panel}>
-                <Text style={styles.panelTitle}>Descripción</Text>
-                <Text style={styles.description}>{song.descripcion}</Text>
+                <Text style={styles.panelTitle}>Acerca de esta canción</Text>
+                <Text style={styles.description}>Disfruta de esta canción en la mejor calidad de audio. Todos nuestros tracks están optimizados para la mejor experiencia de escucha.</Text>
             </View>
+
+            {song.preview && (
+                <View style={styles.panel}>
+                    <Text style={styles.panelTitle}>Vista previa</Text>
+                    <Text style={styles.panelText}>Escucha un adelanto de esta canción</Text>
+                </View>
+            )}
         </ScrollView>
     );
 }
@@ -150,46 +182,54 @@ const styles = StyleSheet.create({
     brandMarkText: {
         color: '#07130E',
         fontWeight: '900',
-        fontSize: 10,
+        fontSize: 12,
     },
     brand: {
-        fontSize: 18,
-        fontWeight: '900',
-        color: theme.colors.primary,
+        color: theme.colors.text,
+        fontWeight: '700',
+        fontSize: 12,
     },
     cover: {
         width: '100%',
-        height: 260,
-        borderRadius: 30,
-        marginBottom: theme.spacing.md,
+        aspectRatio: 1,
+        borderRadius: theme.radius.lg,
+        marginBottom: theme.spacing.lg,
+        shadowColor: theme.colors.shadow,
+        shadowOpacity: 0.4,
+        shadowRadius: 20,
+        shadowOffset: { width: 0, height: 12 },
+        elevation: 12,
     },
     title: {
-        fontSize: 32,
+        fontSize: 28,
         fontWeight: '900',
         color: theme.colors.text,
+        marginBottom: 6,
     },
     artist: {
-        color: theme.colors.muted,
         fontSize: 16,
-        marginTop: 4,
-        marginBottom: theme.spacing.md,
+        color: theme.colors.primary,
+        fontWeight: '700',
+        marginBottom: theme.spacing.lg,
     },
     visualizer: {
         flexDirection: 'row',
         alignItems: 'flex-end',
-        justifyContent: 'space-between',
-        height: 64,
-        marginBottom: theme.spacing.md,
-        paddingHorizontal: 8,
+        justifyContent: 'center',
+        gap: 5,
+        marginBottom: theme.spacing.lg,
+        paddingVertical: theme.spacing.lg,
     },
     progressWrapper: {
         marginBottom: theme.spacing.lg,
     },
     progressBar: {
-        height: 5,
+        width: '100%',
+        height: 4,
         backgroundColor: 'rgba(255,255,255,0.1)',
         borderRadius: 999,
         overflow: 'hidden',
+        marginBottom: 8,
     },
     progressFill: {
         height: '100%',
@@ -199,66 +239,89 @@ const styles = StyleSheet.create({
     timeRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 8,
     },
     timeText: {
         color: theme.colors.muted,
-        fontSize: 11,
+        fontSize: 12,
+        fontWeight: '600',
     },
     controls: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: theme.spacing.lg,
-        gap: 14,
+        gap: theme.spacing.lg,
+        marginBottom: theme.spacing.xl,
     },
     controlButton: {
-        width: 42,
-        height: 42,
-        borderRadius: 21,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         backgroundColor: 'rgba(255,255,255,0.06)',
-        alignItems: 'center',
         justifyContent: 'center',
+        alignItems: 'center',
     },
     playButton: {
-        width: 66,
-        height: 66,
-        borderRadius: 33,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
         backgroundColor: theme.colors.primary,
-        alignItems: 'center',
         justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: theme.colors.primary,
+        shadowOpacity: 0.4,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 8 },
+        elevation: 10,
     },
     panel: {
         backgroundColor: theme.colors.card,
         borderRadius: theme.radius.md,
         borderWidth: 1,
         borderColor: theme.colors.border,
-        padding: theme.spacing.md,
-        marginTop: theme.spacing.sm,
+        padding: theme.spacing.lg,
+        marginBottom: theme.spacing.md,
     },
     panelTitle: {
-        fontSize: 16,
-        fontWeight: '800',
         color: theme.colors.text,
-        marginBottom: 4,
+        fontSize: 16,
+        fontWeight: '700',
+        marginBottom: 6,
     },
     panelText: {
         color: theme.colors.muted,
-        marginTop: 4,
+        lineHeight: 22,
+    },
+    panelSubtext: {
+        color: theme.colors.muted,
+        fontSize: 13,
+        marginTop: 8,
     },
     description: {
         color: theme.colors.muted,
         lineHeight: 22,
-        marginTop: 6,
+        fontSize: 14,
     },
-    backButton: {
-        marginTop: theme.spacing.lg,
-        backgroundColor: theme.colors.primary,
-        borderRadius: theme.radius.md,
-        paddingVertical: theme.spacing.md,
+    emptyState: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+        justifyContent: 'center',
         alignItems: 'center',
     },
-    backText: { color: '#FFFFFF', fontWeight: '700', fontSize: 16 },
-    emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background },
-    emptyText: { color: theme.colors.text, fontSize: 18, fontWeight: '700' },
+    emptyText: {
+        color: theme.colors.muted,
+        fontSize: 16,
+        marginBottom: theme.spacing.lg,
+    },
+    backButton: {
+        backgroundColor: theme.colors.card,
+        borderRadius: theme.radius.md,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        paddingHorizontal: theme.spacing.lg,
+        paddingVertical: theme.spacing.md,
+    },
+    backText: {
+        color: theme.colors.text,
+        fontWeight: '700',
+    },
 });
