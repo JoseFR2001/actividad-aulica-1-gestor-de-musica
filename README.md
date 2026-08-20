@@ -4,47 +4,95 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Get started
 
-1. Install dependencies
+# Spolofy
+
+Spolofy es una aplicacion movil para gestionar una biblioteca musical. Permite explorar canciones, albumes, artistas y playlists, consultar el detalle de cada elemento y marcar canciones como favoritas.
+
+El proyecto esta desarrollado con React Native y Expo SDK 54. Utiliza Expo Router para la navegacion basada en archivos, TypeScript para el tipado y datos locales simulados para representar el catalogo musical. Tambien puede ejecutarse en el navegador mediante React Native Web.
+
+## Requisitos
+
+- Node.js LTS
+- npm
+- Git
+- Expo Go en un dispositivo movil, si se desea probar la aplicacion en Android o iOS
+- Android Studio, para usar un emulador Android
+- Xcode, para usar un simulador iOS en macOS
+
+## Instalacion
+
+1. Clonar el repositorio:
+
+   ```bash
+   git clone https://github.com/JoseFR2001/actividad-aulica-1-gestor-de-musica.git
+   ```
+
+2. Entrar en la carpeta del proyecto:
+
+   ```bash
+   cd actividad-aulica-1-gestor-de-musica
+   ```
+
+3. Instalar las dependencias:
 
    ```bash
    npm install
    ```
 
-2. Start the app
+4. Iniciar el servidor de desarrollo:
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+5. Abrir la aplicacion usando una de las opciones que muestra Expo:
+   - Presionar `w` para abrirla en el navegador.
+   - Presionar `a` para abrirla en un emulador Android.
+   - Presionar `i` para abrirla en un simulador iOS.
+   - Escanear el codigo QR con Expo Go desde un dispositivo movil.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Comandos disponibles
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Ejecutar la aplicacion en web:
 
 ```bash
-npm run reset-project
+npm run web
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Ejecutar la aplicacion en Android:
 
-## Learn more
+```bash
+npm run android
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Ejecutar la aplicacion en iOS:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm run ios
+```
 
-## Join the community
+Revisar el codigo con ESLint:
 
-Join our community of developers creating universal apps.
+```bash
+npm run lint
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Ejecutar las pruebas unitarias:
+
+```bash
+npx jest --runInBand --ci --verbose
+```
+
+## Estructura principal
+
+- `app/`: pantallas y rutas de la aplicacion.
+- `src/components/`: componentes reutilizables de la interfaz.
+- `src/data/`: catalogo musical y fuente de datos simulada.
+- `src/domain/`: tipos y selectores del dominio musical.
+- `src/hooks/`: hooks personalizados, como la gestion de favoritos.
+- `src/theme/`: colores, espaciados y tokens visuales.
+- `tests/`: pruebas unitarias del proyecto.
+
+## Notas
+
+La aplicacion utiliza datos locales simulados, por lo que puede ejecutarse sin configurar un backend. En el navegador se priorizan esos datos locales para evitar problemas de CORS con servicios externos.
