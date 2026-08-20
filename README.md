@@ -1,9 +1,3 @@
-# Welcome to your Expo app 👋
-
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
-
-## Get started
-
 # Spolofy
 
 Spolofy es una aplicacion movil para gestionar una biblioteca musical. Permite explorar canciones, albumes, artistas y playlists, consultar el detalle de cada elemento y marcar canciones como favoritas.
