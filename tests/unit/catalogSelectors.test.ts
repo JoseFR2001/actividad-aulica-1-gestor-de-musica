@@ -20,9 +20,9 @@ describe("catalog selectors", () => {
   it("retrieves a song and related artist data", () => {
     const song = getSongById(mockCatalog, "song-1");
     expect(song).toBeTruthy();
-    expect(song?.titulo).toBe("Ciudad de sueños");
+    expect(song?.titulo).toBe("Maldición");
     expect(getArtistById(mockCatalog, song?.artistaId ?? "")?.nombre).toBe(
-      "Auralia",
+      "Luck Ra",
     );
   });
 

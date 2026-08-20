@@ -1,3 +1,7 @@
+import { mockAlbums } from "./mockAlbums";
+import { mockArtists } from "./mockArtists";
+import { mockSongs } from "./mockSongs";
+
 // ===== DEEZER API TYPES =====
 export type DeezerTrack = {
   id: number;
@@ -126,10 +130,45 @@ function normalizePlaylist(playlist: DeezerPlaylist): NormalizedPlaylist {
 
 // ===== DEEZER API FUNCTIONS =====
 const DEEZER_BASE_URL = "https://api.deezer.com";
+const isWebRuntime =
+  typeof window !== "undefined" && typeof document !== "undefined";
+
+function getLocalTrendingTracks(): NormalizedTrack[] {
+  return mockSongs.map((song) => {
+    const artist = mockArtists.find((entry) => entry.id === song.artistaId);
+    const album = mockAlbums.find((entry) => entry.id === song.albumId);
+
+    return {
+      id: song.id,
+      title: song.titulo,
+      artist: artist?.nombre ?? "Artista desconocido",
+      artistId: song.artistaId,
+      album: album?.titulo ?? "Álbum sin título",
+      albumId: song.albumId,
+      cover:
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=800&q=80",
+      duration: song.duracionSegundos,
+      genre: song.genero,
+    };
+  });
+}
+
+function getLocalPopularArtists(): NormalizedArtist[] {
+  return mockArtists.map((artist) => ({
+    id: artist.id,
+    name: artist.nombre,
+    image: artist.imagen,
+    genres: [artist.generoPrincipal],
+  }));
+}
 
 export async function fetchTrendingTracks(
   limit: number = 12,
 ): Promise<NormalizedTrack[]> {
+  if (isWebRuntime) {
+    return getLocalTrendingTracks().slice(0, limit);
+  }
+
   try {
     const response = await fetch(
       `${DEEZER_BASE_URL}/chart/0/tracks?limit=${limit}`,
@@ -184,6 +223,10 @@ export async function fetchArtistTracks(
 export async function fetchPopularArtists(
   limit: number = 10,
 ): Promise<NormalizedArtist[]> {
+  if (isWebRuntime) {
+    return getLocalPopularArtists().slice(0, limit);
+  }
+
   try {
     const response = await fetch(
       `${DEEZER_BASE_URL}/chart/0/artists?limit=${limit}`,
